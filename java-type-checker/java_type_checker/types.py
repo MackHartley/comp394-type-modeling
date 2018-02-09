@@ -12,7 +12,15 @@ class Type(object):
     def is_subtype_of(self, other):
         """ True if this type can be used where the other type is expected.
         """
-        return True  # TODO: implement
+        if self.name == other.name:
+            return True
+        elif len(self.direct_supertypes) == 0:
+            return False
+        else:
+            for supertype in self.direct_supertypes:
+                if supertype.is_subtype_of(other):
+                    return True
+            return False
 
     def is_supertype_of(self, other):
         """ Convenience counterpart to is_subtype_of().
@@ -71,6 +79,14 @@ class NullType(Type):
     """
     def __init__(self):
         super().__init__("null")
+
+    def is_subtype_of(self, other):
+        if not other.is_subtype_of(Type.object):
+            return False
+        return True
+
+    def check_for_null_method(self, method_name):
+        raise NoSuchMethod("Cannot invoke method {0}() on null".format(method_name))
 
 
 class NoSuchMethod(Exception):
